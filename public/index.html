@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>출퇴근 도서관 책찾기</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Gangnam to Gireum commute library finder</p>
+          <h1>출퇴근 도서관 책찾기</h1>
+          <p class="subtitle">강남역-길음역 생활권 8개 구에서 지금 대출 가능한 도서관을 찾습니다.</p>
+        </div>
+        <div class="districts" aria-label="검색 대상 구">
+          <span>강남구</span>
+          <span>서초구</span>
+          <span>동작구</span>
+          <span>용산구</span>
+          <span>중구</span>
+          <span>종로구</span>
+          <span>성북구</span>
+          <span>강북구</span>
+        </div>
+      </section>
+
+      <section class="search-panel" aria-label="책 검색">
+        <form id="searchForm" class="search-form">
+          <label for="keyword">책 제목</label>
+          <div class="search-row">
+            <input id="keyword" name="keyword" type="search" autocomplete="off" placeholder="책 제목 또는 ISBN13, 예: 9788934943013">
+            <button type="submit">검색</button>
+          </div>
+        </form>
+        <p id="status" class="status" role="status"></p>
+      </section>
+
+      <section class="content-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>책 후보</h2>
+            <p>원하는 책을 선택하면 대출 가능 도서관을 찾습니다.</p>
+          </div>
+          <div id="bookList" class="book-list empty">검색어를 입력해 주세요.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>대출 가능 도서관</h2>
+            <p>도서관 링크에서 지하철역 배송신청을 직접 진행하세요.</p>
+          </div>
+          <div id="libraryList" class="library-list empty">책을 먼저 선택해 주세요.</div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
