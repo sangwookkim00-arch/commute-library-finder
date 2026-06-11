@@ -20,7 +20,7 @@
       }
 
       main {
-        width: min(1480px, 100%);
+        width: min(1880px, 100%);
         margin: 0 auto;
         padding: 24px 16px 32px;
       }
@@ -63,7 +63,7 @@
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 18px;
       }
 
@@ -115,16 +115,23 @@
       <header>
         <div>
           <h1>모바일 디자인 비교</h1>
-          <p>Hybrid는 앱 느낌과 또렷한 카드감을 합친 후보입니다.</p>
+          <p>Reference는 첨부 이미지의 딥 네이비 앱 무드를 반영한 새 후보입니다.</p>
         </div>
         <div class="links">
           <a href="/react" target="_blank">React만 보기</a>
           <a href="/tailwind" target="_blank">Tailwind만 보기</a>
           <a href="/hybrid" target="_blank">Hybrid만 보기</a>
+          <a href="/reference" target="_blank">Reference만 보기</a>
         </div>
       </header>
 
       <section class="grid">
+        <article class="preview">
+          <h2>Reference 시안</h2>
+          <div class="phone">
+            <iframe src="/reference" title="Reference 시안"></iframe>
+          </div>
+        </article>
         <article class="preview">
           <h2>Hybrid 시안</h2>
           <div class="phone">

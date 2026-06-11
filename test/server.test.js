@@ -16,6 +16,8 @@ test('resolves root and design preview routes to index files', () => {
   assert.equal(resolveStaticRequestPath('/tailwind/'), '/tailwind/index.html');
   assert.equal(resolveStaticRequestPath('/hybrid'), '/hybrid/index.html');
   assert.equal(resolveStaticRequestPath('/hybrid/'), '/hybrid/index.html');
+  assert.equal(resolveStaticRequestPath('/reference'), '/reference/index.html');
+  assert.equal(resolveStaticRequestPath('/reference/'), '/reference/index.html');
 });
 
 test('preserves direct static asset paths', () => {
@@ -30,10 +32,22 @@ test('hybrid mobile design preview assets exist', () => {
   assert.equal(existsSync(join(projectRoot, 'public', 'hybrid', 'styles.css')), true);
 });
 
-test('root page uses the hybrid mobile design assets', () => {
+test('reference-inspired mobile design preview assets exist', () => {
+  const html = readFileSync(join(projectRoot, 'public', 'reference', 'index.html'), 'utf8');
+
+  assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'index.html')), true);
+  assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'app.js')), true);
+  assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'styles.css')), true);
+  assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'assets', 'line-4-badge.svg')), true);
+  assert.equal(html.includes('/reference/assets/line-4-badge.svg'), true);
+  assert.equal(html.includes('4호선'), true);
+});
+
+test('root page uses the reference mobile design assets', () => {
   const html = readFileSync(join(projectRoot, 'public', 'index.html'), 'utf8');
 
-  assert.equal(html.includes('/hybrid/styles.css'), true);
-  assert.equal(html.includes('/hybrid/app.js'), true);
-  assert.equal(html.includes('오늘 빌릴 책, 가까운 도서관부터'), true);
+  assert.equal(html.includes('/reference/styles.css'), true);
+  assert.equal(html.includes('/reference/app.js'), true);
+  assert.equal(html.includes('/reference/assets/line-4-badge.svg'), true);
+  assert.equal(html.includes('퇴근길에 빌릴 책을'), true);
 });
