@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tailwind Preview - 출퇴근 도서관 책찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: '#17211d',
+              soft: '#f5faf7',
+              leaf: '#0f9f74',
+              line: '#d8e7e1',
+            },
+            boxShadow: {
+              soft: '0 18px 48px rgba(23, 33, 29, 0.10)',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-soft text-ink antialiased">
+    <main class="mx-auto min-h-screen max-w-[520px] px-4 pb-8 pt-4">
+      <header class="mb-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-normal text-leaf">Tailwind 시안</p>
+          <h1 class="mt-1 text-[22px] font-black leading-tight">책 픽업 동선 찾기</h1>
+        </div>
+        <div class="rounded-2xl bg-white px-3 py-2 text-right text-xs font-bold text-slate-600 shadow-sm ring-1 ring-line">
+          <p>4호선</p>
+          <p class="text-leaf">강남-길음</p>
+        </div>
+      </header>
+
+      <section class="rounded-[28px] bg-white p-4 shadow-soft ring-1 ring-line">
+        <div class="mb-4 grid grid-cols-[auto_1fr_auto] items-center gap-2 text-sm font-extrabold text-slate-700">
+          <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-leaf">강남역</span>
+          <span class="h-1 rounded-full bg-gradient-to-r from-emerald-200 via-sky-200 to-indigo-200"></span>
+          <span class="rounded-full bg-indigo-50 px-3 py-1.5 text-indigo-700">길음역</span>
+        </div>
+
+        <form id="searchForm" class="space-y-3">
+          <label for="keyword" class="block text-sm font-black">책 제목 또는 ISBN13</label>
+          <div class="grid grid-cols-[1fr_auto] gap-2">
+            <input id="keyword" type="search" class="min-w-0 rounded-2xl border border-line bg-slate-50 px-4 py-4 text-base outline-none transition focus:border-leaf focus:bg-white focus:ring-4 focus:ring-emerald-100" placeholder="자본주의 편의점">
+            <button id="submitButton" type="submit" class="rounded-2xl bg-ink px-5 text-base font-black text-white shadow-sm transition active:scale-[0.98]">검색</button>
+          </div>
+        </form>
+
+        <div class="mt-4 flex gap-2 overflow-x-auto pb-1 text-xs font-bold text-slate-600">
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">강남구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">서초구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">동작구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">용산구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">중구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">종로구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">성북구</span>
+          <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5">강북구</span>
+        </div>
+      </section>
+
+      <p id="status" class="min-h-6 px-1 py-4 text-sm font-semibold text-slate-500">검색어를 입력해 주세요.</p>
+
+      <section class="mb-5">
+        <div class="mb-2 flex items-end justify-between px-1">
+          <h2 class="text-lg font-black">책 후보</h2>
+          <span id="bookCount" class="text-xs font-bold text-slate-500">0권</span>
+        </div>
+        <div id="bookList" class="space-y-3">
+          <div class="rounded-3xl border border-dashed border-line bg-white/70 p-6 text-center text-sm font-semibold text-slate-500">검색하면 책 후보가 표시됩니다.</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-2 flex items-end justify-between px-1">
+          <h2 class="text-lg font-black">대출 가능 도서관</h2>
+          <span id="libraryCount" class="text-xs font-bold text-slate-500">0곳</span>
+        </div>
+        <div id="libraryList" class="space-y-3">
+          <div class="rounded-3xl border border-dashed border-line bg-white/70 p-6 text-center text-sm font-semibold text-slate-500">책을 선택하면 도서관이 표시됩니다.</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/tailwind/app.js"></script>
+  </body>
+</html>

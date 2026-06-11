@@ -56,8 +56,15 @@ async function handleApi(request, response, url) {
   }
 }
 
+export function resolveStaticRequestPath(pathname) {
+  if (pathname === '/') return '/index.html';
+  if (pathname.endsWith('/')) return `${pathname}index.html`;
+  if (!extname(pathname)) return `${pathname}/index.html`;
+  return pathname;
+}
+
 async function serveStatic(response, pathname) {
-  const requestedPath = pathname === '/' ? '/index.html' : pathname;
+  const requestedPath = resolveStaticRequestPath(pathname);
   const filePath = normalize(join(publicDir, requestedPath));
 
   if (!filePath.startsWith(publicDir)) {
