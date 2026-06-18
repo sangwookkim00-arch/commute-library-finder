@@ -34,7 +34,7 @@ function setStatus(message) {
   statusEl.textContent = message;
 }
 
-function resetSelectedBook(message = '책을 선택하면 상세와 대출 가능 도서관이 표시됩니다.') {
+function resetSelectedBook(message = '책을 선택하면 상세 정보와 대출 가능한 도서관이 표시됩니다.') {
   selectedBookEl.className = 'selected-book empty-detail';
   selectedBookEl.innerHTML = '';
   const text = document.createElement('p');
@@ -43,7 +43,7 @@ function resetSelectedBook(message = '책을 선택하면 상세와 대출 가�
 }
 
 function resetLibraries(message = '도서관 결과 대기 중') {
-  libraryCountEl.textContent = '0 places';
+  libraryCountEl.textContent = '0곳';
   libraryListEl.innerHTML = '';
   const empty = document.createElement('article');
   empty.className = 'library-empty';
@@ -55,7 +55,7 @@ function renderDistricts(districts) {
   districtGridEl.innerHTML = '';
 
   if (!districts.length) {
-    for (const label of ['경로', '구역', '계산', '필요']) {
+    for (const label of ['경로', '구역', '계산', '대기']) {
       const chip = document.createElement('span');
       chip.textContent = label;
       districtGridEl.append(chip);
@@ -109,18 +109,18 @@ async function updateRoute() {
   try {
     const payload = await fetchJson(`/api/route?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
     renderRoute(payload.route);
-    resetLibraries('새 경로가 적용되었습니다. 책을 선택하면 도서관을 다시 확인합니다.');
+    resetLibraries('경로가 적용되었습니다. 책을 선택하면 도서관을 다시 확인합니다.');
     setStatus(`${payload.route.districts.join(', ')} 기준으로 도서관을 찾습니다.`);
   } catch (error) {
     setStatus(error.message);
   } finally {
     routeButton.disabled = false;
-    routeButton.textContent = 'Route';
+    routeButton.textContent = '경로';
   }
 }
 
 function renderBooks(books) {
-  bookCountEl.textContent = `${books.length} books`;
+  bookCountEl.textContent = `${books.length}권`;
   bookShelfEl.innerHTML = '';
 
   if (!books.length) {
@@ -181,11 +181,11 @@ function renderSelectedBook(book) {
 }
 
 function renderLibraries(libraries, message) {
-  libraryCountEl.textContent = `${libraries.length} places`;
+  libraryCountEl.textContent = `${libraries.length}곳`;
   libraryListEl.innerHTML = '';
 
   if (!libraries.length) {
-    resetLibraries(message || '8개 구 안에서 현재 대출 가능한 도서관이 없습니다.');
+    resetLibraries(message || '선택한 경로의 구 안에서 현재 대출 가능한 도서관이 없습니다.');
     return;
   }
 
@@ -195,7 +195,7 @@ function renderLibraries(libraries, message) {
 
     const badge = document.createElement('span');
     badge.className = 'badge';
-    badge.textContent = `${library.district} · Available`;
+    badge.textContent = `${library.district} · 대출 가능`;
 
     const title = document.createElement('h3');
     title.textContent = library.libName;
@@ -205,6 +205,7 @@ function renderLibraries(libraries, message) {
       library.address,
       library.tel ? `전화 ${library.tel}` : '',
       library.closed ? `휴관 ${library.closed}` : '',
+      library.operatingTime ? `운영 ${library.operatingTime}` : '',
     ].filter(Boolean).join(' · ');
 
     card.append(badge, title, meta);
@@ -227,7 +228,7 @@ async function selectBook(button, book) {
   document.querySelectorAll('.book-card').forEach((card) => card.classList.remove('selected'));
   button.classList.add('selected');
   renderSelectedBook(book);
-  resetLibraries('대출 가능 도서관을 확인하고 있습니다.');
+  resetLibraries('대출 가능한 도서관을 확인하고 있습니다.');
   setStatus(`"${book.bookname}" 도서관을 찾고 있습니다.`);
 
   try {
@@ -274,7 +275,7 @@ searchForm.addEventListener('submit', async (event) => {
     setStatus('책 검색 중 오류가 발생했습니다.');
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = 'Search';
+    submitButton.textContent = '검색';
   }
 });
 

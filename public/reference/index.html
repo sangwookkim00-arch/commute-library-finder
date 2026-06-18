@@ -3,28 +3,32 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reference Preview - 출퇴근 도서관 책찾기</title>
+    <title>출퇴근 도서관 책찾기</title>
     <link rel="stylesheet" href="/reference/styles.css">
   </head>
   <body>
     <main class="phone-app">
-      <section class="hero-screen">
+      <section class="hero-screen" aria-label="책 검색">
         <header class="topbar">
-          <div class="line-badge" aria-label="4호선 출퇴근 라인">
-            <img src="/reference/assets/line-4-badge.svg" alt="4호선">
+          <div class="rail-mark" aria-label="서울 지하철 1호선부터 8호선">
+            <span>1-8</span>
+            <small>Seoul</small>
           </div>
-          <button class="icon-button" type="button" aria-label="알림">●</button>
+          <div class="top-copy">
+            <strong>Commute Library</strong>
+            <span>출퇴근길 책 대여 루트</span>
+          </div>
         </header>
 
-        <p class="greeting">오늘의 책 픽업</p>
-        <h1>퇴근길에 빌릴 책을<br>가장 예쁜 경로로 찾아요</h1>
+        <p class="greeting">오늘 필요한 책, 어느 도서관에 있을까?</p>
+        <h1>강남에서 길음까지<br>내 경로 도서관만<br>골라 찾아요</h1>
 
         <form id="routeForm" class="route-form">
           <label for="startStation">출퇴근 경로</label>
           <div class="station-fields">
             <input id="startStation" name="startStation" list="stationOptions" autocomplete="off" value="강남" placeholder="출발역">
             <input id="endStation" name="endStation" list="stationOptions" autocomplete="off" value="길음" placeholder="도착역">
-            <button id="routeButton" type="submit">Route</button>
+            <button id="routeButton" type="submit">경로</button>
           </div>
           <datalist id="stationOptions"></datalist>
         </form>
@@ -32,8 +36,8 @@
         <form id="searchForm" class="search-form">
           <label for="keyword">책 검색</label>
           <div class="search-field">
-            <input id="keyword" name="keyword" type="search" autocomplete="off" placeholder="책 제목, ISBN13">
-            <button id="submitButton" type="submit">Search</button>
+            <input id="keyword" name="keyword" type="search" autocomplete="off" placeholder="책 제목 또는 ISBN13">
+            <button id="submitButton" type="submit">검색</button>
           </div>
         </form>
 
@@ -46,14 +50,14 @@
         </div>
 
         <div class="section-title">
-          <h2>Book shelf</h2>
-          <span id="bookCount">0 books</span>
+          <h2>책 후보</h2>
+          <span id="bookCount">0권</span>
         </div>
         <div id="bookShelf" class="book-shelf">
-          <article class="placeholder-card">검색하면 책 표지가 여기에 나타납니다.</article>
+          <article class="placeholder-card">검색하면 책 표지가 여기에 표시됩니다.</article>
         </div>
 
-        <div id="districtGrid" class="genre-grid" aria-label="검색 대상 구">
+        <div id="districtGrid" class="genre-grid" aria-label="검색 대상 자치구">
           <span>경로</span>
           <span>계산</span>
           <span>대기</span>
@@ -61,27 +65,27 @@
         </div>
       </section>
 
-      <section class="detail-screen">
-        <p id="status" class="status">책 제목을 입력해 주세요.</p>
+      <section class="detail-screen" aria-label="대출 가능 도서관">
+        <p id="status" class="status">책 제목이나 ISBN13을 입력해 주세요.</p>
         <div id="selectedBook" class="selected-book empty-detail">
-          <p>책을 선택하면 상세와 대출 가능 도서관이 표시됩니다.</p>
+          <p>책을 선택하면 상세 정보와 대출 가능한 도서관이 표시됩니다.</p>
         </div>
 
         <div class="section-title compact">
-          <h2>Available libraries</h2>
-          <span id="libraryCount">0 places</span>
+          <h2>대출 가능한 도서관</h2>
+          <span id="libraryCount">0곳</span>
         </div>
         <div id="libraryList" class="library-list">
           <article class="library-empty">도서관 결과 대기 중</article>
         </div>
       </section>
 
-      <nav class="bottom-nav" aria-label="미리보기 내비게이션">
-        <span class="active">Home</span>
-        <span>Search</span>
-        <span class="center">Book</span>
-        <span>Library</span>
-        <span>Route</span>
+      <nav class="bottom-nav" aria-label="앱 메뉴">
+        <span class="active">홈</span>
+        <span>검색</span>
+        <span class="center">책</span>
+        <span>도서관</span>
+        <span>경로</span>
       </nav>
     </main>
 

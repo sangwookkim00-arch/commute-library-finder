@@ -38,9 +38,9 @@ test('reference-inspired mobile design preview assets exist', () => {
   assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'index.html')), true);
   assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'app.js')), true);
   assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'styles.css')), true);
-  assert.equal(existsSync(join(projectRoot, 'public', 'reference', 'assets', 'line-4-badge.svg')), true);
-  assert.equal(html.includes('/reference/assets/line-4-badge.svg'), true);
-  assert.equal(html.includes('4호선'), true);
+  assert.equal(html.includes('1-8'), true);
+  assert.equal(html.includes('출퇴근 도서관 책찾기'), true);
+  assert.equal(html.includes('책 제목 또는 ISBN13'), true);
 });
 
 test('root page uses the reference mobile design assets', () => {
@@ -48,10 +48,9 @@ test('root page uses the reference mobile design assets', () => {
 
   assert.equal(html.includes('/reference/styles.css'), true);
   assert.equal(html.includes('/reference/app.js'), true);
-  assert.equal(html.includes('/reference/assets/line-4-badge.svg'), true);
   assert.equal(html.includes('startStation'), true);
   assert.equal(html.includes('endStation'), true);
-  assert.equal(html.includes('퇴근길에 빌릴 책을'), true);
+  assert.equal(html.includes('내 경로 도서관만'), true);
 });
 
 test('parses selected route districts from query parameter', () => {
