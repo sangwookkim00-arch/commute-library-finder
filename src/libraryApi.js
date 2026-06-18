@@ -13,6 +13,8 @@ const DEFAULT_BASE_URL = 'https://k-skill-proxy.nomadamas.org';
 const SEOUL_REGION_CODE = '11';
 const KYOBO_SEARCH_BASE_URL = 'https://search.kyobobook.co.kr/search';
 const MAX_ENRICHED_ISBNS = 6;
+const AVAILABILITY_CONCURRENCY = 3;
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 export function getDistrictFromAddress(address = '', targetDistricts = TARGET_DISTRICTS) {
   return targetDistricts.find((district) => address.includes(district)) || '';
@@ -152,11 +154,32 @@ async function fetchJson(path, params) {
     }
   }
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Data4Library proxy failed: ${response.status}`);
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const response = await fetch(url);
+    if (response.ok) return response.json();
+
+    if (!RETRYABLE_STATUSES.has(response.status) || attempt === maxAttempts) {
+      throw new Error(`Data4Library proxy failed: ${response.status}`);
+    }
+
+    await sleep(300 * attempt);
   }
-  return response.json();
+
+  throw new Error('Data4Library proxy failed');
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function mapWithConcurrency(items, concurrency, worker) {
+  const results = [];
+  for (let index = 0; index < items.length; index += concurrency) {
+    const batch = items.slice(index, index + concurrency);
+    results.push(...(await Promise.all(batch.map(worker))));
+  }
+  return results;
 }
 
 async function fetchKyoboIsbnCandidates(keyword) {
@@ -256,8 +279,10 @@ export async function findAvailableLibraries(isbn13, targetDistricts = TARGET_DI
 
   const routeDistricts = targetDistricts.length ? targetDistricts : TARGET_DISTRICTS;
   const libraries = await findHoldingLibraries(trimmed, routeDistricts);
-  const checks = await Promise.all(
-    libraries.map((library) => checkLibraryAvailability(library, trimmed)),
+  const checks = await mapWithConcurrency(
+    libraries,
+    AVAILABILITY_CONCURRENCY,
+    (library) => checkLibraryAvailability(library, trimmed),
   );
 
   return keepLoanAvailable(checks, routeDistricts).sort((a, b) => {
