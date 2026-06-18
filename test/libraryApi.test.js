@@ -74,6 +74,31 @@ test('keeps only target-district loan-available library records', () => {
   assert.equal(kept[0].district, '강남구');
 });
 
+test('keeps loan-available libraries only in selected route districts', () => {
+  const rows = [
+    {
+      lib: {
+        libName: '성북 가능 도서관',
+        address: '서울특별시 성북구 아리랑로 82',
+      },
+      availability: { hasBook: 'Y', loanAvailable: 'Y' },
+    },
+    {
+      lib: {
+        libName: '강북 가능 도서관',
+        address: '서울특별시 강북구 삼양로 313',
+      },
+      availability: { hasBook: 'Y', loanAvailable: 'Y' },
+    },
+  ];
+
+  const kept = keepLoanAvailable(rows, ['성북구']);
+
+  assert.equal(kept.length, 1);
+  assert.equal(kept[0].libName, '성북 가능 도서관');
+  assert.equal(kept[0].district, '성북구');
+});
+
 test('detects ISBN13 queries with or without hyphens', () => {
   assert.equal(looksLikeIsbn13('9788934943013'), true);
   assert.equal(looksLikeIsbn13('978-893-4943013'), true);

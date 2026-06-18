@@ -14,12 +14,12 @@ const SEOUL_REGION_CODE = '11';
 const KYOBO_SEARCH_BASE_URL = 'https://search.kyobobook.co.kr/search';
 const MAX_ENRICHED_ISBNS = 6;
 
-export function getDistrictFromAddress(address = '') {
-  return TARGET_DISTRICTS.find((district) => address.includes(district)) || '';
+export function getDistrictFromAddress(address = '', targetDistricts = TARGET_DISTRICTS) {
+  return targetDistricts.find((district) => address.includes(district)) || '';
 }
 
-export function isTargetDistrict(address = '') {
-  return Boolean(getDistrictFromAddress(address));
+export function isTargetDistrict(address = '', targetDistricts = TARGET_DISTRICTS) {
+  return Boolean(getDistrictFromAddress(address, targetDistricts));
 }
 
 export function normalizeBookDocs(docs = []) {
@@ -113,7 +113,7 @@ export function mergeBooksByIsbn(...bookGroups) {
   return merged;
 }
 
-export function keepLoanAvailable(rows = []) {
+export function keepLoanAvailable(rows = [], targetDistricts = TARGET_DISTRICTS) {
   return rows
     .filter((row) => {
       const availability = row.availability ?? {};
@@ -121,14 +121,14 @@ export function keepLoanAvailable(rows = []) {
       return (
         availability.hasBook === 'Y' &&
         availability.loanAvailable === 'Y' &&
-        isTargetDistrict(address)
+        isTargetDistrict(address, targetDistricts)
       );
     })
     .map((row) => {
       const lib = row.lib;
       return {
         libName: lib.libName ?? '',
-        district: getDistrictFromAddress(lib.address ?? ''),
+        district: getDistrictFromAddress(lib.address ?? '', targetDistricts),
         address: lib.address ?? '',
         tel: lib.tel ?? '',
         homepage: lib.homepage ?? '',
@@ -223,7 +223,7 @@ export async function searchBooks(keyword) {
   return mergeBooksByIsbn(enrichedBooks, keywordBooks).slice(0, 10);
 }
 
-async function findHoldingLibraries(isbn13) {
+async function findHoldingLibraries(isbn13, targetDistricts = TARGET_DISTRICTS) {
   const payload = await fetchJson('/v1/data4library/libraries-by-book', {
     isbn: isbn13,
     region: SEOUL_REGION_CODE,
@@ -233,7 +233,7 @@ async function findHoldingLibraries(isbn13) {
 
   return (payload?.response?.libs ?? [])
     .map((entry) => entry?.lib ?? entry)
-    .filter((lib) => lib?.libCode && isTargetDistrict(lib.address ?? ''));
+    .filter((lib) => lib?.libCode && isTargetDistrict(lib.address ?? '', targetDistricts));
 }
 
 async function checkLibraryAvailability(lib, isbn13) {
@@ -248,19 +248,20 @@ async function checkLibraryAvailability(lib, isbn13) {
   };
 }
 
-export async function findAvailableLibraries(isbn13) {
+export async function findAvailableLibraries(isbn13, targetDistricts = TARGET_DISTRICTS) {
   const trimmed = isbn13?.trim();
   if (!trimmed) {
     throw new Error('ISBN13이 필요합니다.');
   }
 
-  const libraries = await findHoldingLibraries(trimmed);
+  const routeDistricts = targetDistricts.length ? targetDistricts : TARGET_DISTRICTS;
+  const libraries = await findHoldingLibraries(trimmed, routeDistricts);
   const checks = await Promise.all(
     libraries.map((library) => checkLibraryAvailability(library, trimmed)),
   );
 
-  return keepLoanAvailable(checks).sort((a, b) => {
-    const districtCompare = TARGET_DISTRICTS.indexOf(a.district) - TARGET_DISTRICTS.indexOf(b.district);
+  return keepLoanAvailable(checks, routeDistricts).sort((a, b) => {
+    const districtCompare = routeDistricts.indexOf(a.district) - routeDistricts.indexOf(b.district);
     if (districtCompare !== 0) return districtCompare;
     return a.libName.localeCompare(b.libName, 'ko');
   });

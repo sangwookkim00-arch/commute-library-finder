@@ -1,12 +1,27 @@
 const searchForm = document.querySelector('#searchForm');
+const routeForm = document.querySelector('#routeForm');
 const keywordInput = document.querySelector('#keyword');
+const startStationInput = document.querySelector('#startStation');
+const endStationInput = document.querySelector('#endStation');
 const submitButton = document.querySelector('#submitButton');
+const routeButton = document.querySelector('#routeButton');
 const statusEl = document.querySelector('#status');
 const bookShelfEl = document.querySelector('#bookShelf');
 const selectedBookEl = document.querySelector('#selectedBook');
 const libraryListEl = document.querySelector('#libraryList');
 const bookCountEl = document.querySelector('#bookCount');
 const libraryCountEl = document.querySelector('#libraryCount');
+const stationOptionsEl = document.querySelector('#stationOptions');
+const routeStartEl = document.querySelector('#routeStart');
+const routeEndEl = document.querySelector('#routeEnd');
+const routeDistrictCountEl = document.querySelector('#routeDistrictCount');
+const districtGridEl = document.querySelector('#districtGrid');
+
+let selectedRoute = {
+  start: '강남',
+  end: '길음',
+  districts: [],
+};
 
 async function fetchJson(url) {
   const response = await fetch(url);
@@ -34,6 +49,74 @@ function resetLibraries(message = '도서관 결과 대기 중') {
   empty.className = 'library-empty';
   empty.textContent = message;
   libraryListEl.append(empty);
+}
+
+function renderDistricts(districts) {
+  districtGridEl.innerHTML = '';
+
+  if (!districts.length) {
+    for (const label of ['경로', '구역', '계산', '필요']) {
+      const chip = document.createElement('span');
+      chip.textContent = label;
+      districtGridEl.append(chip);
+    }
+    return;
+  }
+
+  for (const district of districts) {
+    const chip = document.createElement('span');
+    chip.textContent = district;
+    districtGridEl.append(chip);
+  }
+}
+
+function renderRoute(route) {
+  selectedRoute = {
+    start: route.start.name,
+    end: route.end.name,
+    districts: route.districts,
+  };
+  routeStartEl.textContent = route.start.name;
+  routeEndEl.textContent = route.end.name;
+  routeDistrictCountEl.textContent = `${route.districts.length}개 구`;
+  renderDistricts(route.districts);
+}
+
+async function loadStations() {
+  const payload = await fetchJson('/api/stations');
+  stationOptionsEl.innerHTML = '';
+
+  for (const station of payload.stations) {
+    const option = document.createElement('option');
+    option.value = station.name;
+    option.label = `${station.name} · ${station.lines.join(',')}호선 · ${station.district}`;
+    stationOptionsEl.append(option);
+  }
+}
+
+async function updateRoute() {
+  const start = startStationInput.value.trim();
+  const end = endStationInput.value.trim();
+
+  if (!start || !end) {
+    setStatus('출발역과 도착역을 선택해 주세요.');
+    return;
+  }
+
+  routeButton.disabled = true;
+  routeButton.textContent = '...';
+
+  try {
+    const payload = await fetchJson(`/api/route?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRoute(payload.route);
+    resetLibraries('새 경로가 적용되었습니다. 책을 선택하면 도서관을 다시 확인합니다.');
+    setStatus(`${payload.route.districts.join(', ')} 기준으로 도서관을 찾습니다.`);
+  } catch (error) {
+    setStatus(error.message);
+  } finally {
+    routeButton.disabled = false;
+    routeButton.textContent = 'Route';
+  }
 }
 
 function renderBooks(books) {
@@ -148,7 +231,8 @@ async function selectBook(button, book) {
   setStatus(`"${book.bookname}" 도서관을 찾고 있습니다.`);
 
   try {
-    const payload = await fetchJson(`/api/availability?isbn13=${encodeURIComponent(book.isbn13)}`);
+    const districts = selectedRoute.districts.join(',');
+    const payload = await fetchJson(`/api/availability?isbn13=${encodeURIComponent(book.isbn13)}&districts=${encodeURIComponent(districts)}`);
     renderLibraries(payload.libraries, payload.message);
     setStatus(payload.libraries.length ? `대출 가능한 도서관 ${payload.libraries.length}곳을 찾았습니다.` : '대출 가능한 도서관이 없습니다.');
   } catch (error) {
@@ -193,3 +277,20 @@ searchForm.addEventListener('submit', async (event) => {
     submitButton.textContent = 'Search';
   }
 });
+
+routeForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  await updateRoute();
+});
+
+async function initializeRoutePlanner() {
+  try {
+    await loadStations();
+    await updateRoute();
+  } catch (error) {
+    renderDistricts([]);
+    setStatus(`경로 데이터를 불러오지 못했습니다. ${error.message}`);
+  }
+}
+
+initializeRoutePlanner();

@@ -19,6 +19,16 @@
         <p class="greeting">오늘의 책 픽업</p>
         <h1>퇴근길에 빌릴 책을<br>가장 예쁜 경로로 찾아요</h1>
 
+        <form id="routeForm" class="route-form">
+          <label for="startStation">출퇴근 경로</label>
+          <div class="station-fields">
+            <input id="startStation" name="startStation" list="stationOptions" autocomplete="off" value="강남" placeholder="출발역">
+            <input id="endStation" name="endStation" list="stationOptions" autocomplete="off" value="길음" placeholder="도착역">
+            <button id="routeButton" type="submit">Route</button>
+          </div>
+          <datalist id="stationOptions"></datalist>
+        </form>
+
         <form id="searchForm" class="search-form">
           <label for="keyword">책 검색</label>
           <div class="search-field">
@@ -28,11 +38,11 @@
         </form>
 
         <div class="route-card">
-          <span>강남</span>
+          <span id="routeStart">강남</span>
           <i></i>
-          <b>8개 구</b>
+          <b id="routeDistrictCount">경로 계산 중</b>
           <i></i>
-          <span>길음</span>
+          <span id="routeEnd">길음</span>
         </div>
 
         <div class="section-title">
@@ -43,15 +53,11 @@
           <article class="placeholder-card">검색하면 책 표지가 여기에 나타납니다.</article>
         </div>
 
-        <div class="genre-grid" aria-label="검색 대상 구">
-          <span>강남</span>
-          <span>서초</span>
-          <span>동작</span>
-          <span>용산</span>
-          <span>중구</span>
-          <span>종로</span>
-          <span>성북</span>
-          <span>강북</span>
+        <div id="districtGrid" class="genre-grid" aria-label="검색 대상 구">
+          <span>경로</span>
+          <span>계산</span>
+          <span>대기</span>
+          <span>중</span>
         </div>
       </section>
 

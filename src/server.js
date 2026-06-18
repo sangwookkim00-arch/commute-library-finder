@@ -4,6 +4,7 @@ import { createServer as createHttpServer } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findAvailableLibraries, searchBooks } from './libraryApi.js';
+import { findSubwayRoute, getStationOptions } from './subwayRoute.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const publicDir = normalize(join(__dirname, '..', 'public'));
@@ -29,8 +30,33 @@ function sendError(response, statusCode, message) {
   sendJson(response, statusCode, { error: message });
 }
 
+export function parseDistrictsParam(value = '') {
+  const seen = new Set();
+  return value
+    .split(',')
+    .map((district) => district.trim())
+    .filter(Boolean)
+    .filter((district) => {
+      if (seen.has(district)) return false;
+      seen.add(district);
+      return true;
+    });
+}
+
 async function handleApi(request, response, url) {
   try {
+    if (url.pathname === '/api/stations') {
+      return sendJson(response, 200, { stations: getStationOptions() });
+    }
+
+    if (url.pathname === '/api/route') {
+      const start = url.searchParams.get('start') ?? '';
+      const end = url.searchParams.get('end') ?? '';
+      if (!start.trim() || !end.trim()) return sendError(response, 400, '출발역과 도착역을 선택해주세요.');
+      const route = findSubwayRoute(start, end);
+      return sendJson(response, 200, { route });
+    }
+
     if (url.pathname === '/api/books') {
       const keyword = url.searchParams.get('keyword') ?? '';
       if (!keyword.trim()) return sendError(response, 400, '책 제목을 입력해주세요.');
@@ -41,12 +67,13 @@ async function handleApi(request, response, url) {
     if (url.pathname === '/api/availability') {
       const isbn13 = url.searchParams.get('isbn13') ?? '';
       if (!isbn13.trim()) return sendError(response, 400, 'ISBN13이 필요합니다.');
-      const libraries = await findAvailableLibraries(isbn13);
+      const districts = parseDistrictsParam(url.searchParams.get('districts') ?? '');
+      const libraries = await findAvailableLibraries(isbn13, districts);
       return sendJson(response, 200, {
         libraries,
         message: libraries.length
           ? ''
-          : '8개 구 안에서 현재 대출 가능한 도서관이 없습니다.',
+          : '선택한 경로의 구 안에서 현재 대출 가능한 도서관이 없습니다.',
       });
     }
 

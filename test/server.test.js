@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { resolveStaticRequestPath } from '../src/server.js';
+import { createServer, parseDistrictsParam, resolveStaticRequestPath } from '../src/server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
@@ -49,5 +49,33 @@ test('root page uses the reference mobile design assets', () => {
   assert.equal(html.includes('/reference/styles.css'), true);
   assert.equal(html.includes('/reference/app.js'), true);
   assert.equal(html.includes('/reference/assets/line-4-badge.svg'), true);
+  assert.equal(html.includes('startStation'), true);
+  assert.equal(html.includes('endStation'), true);
   assert.equal(html.includes('퇴근길에 빌릴 책을'), true);
+});
+
+test('parses selected route districts from query parameter', () => {
+  assert.deepEqual(parseDistrictsParam('강남구,서초구,강남구'), ['강남구', '서초구']);
+  assert.deepEqual(parseDistrictsParam(''), []);
+});
+
+test('serves station options and route districts', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, resolve));
+  const { port } = server.address();
+
+  try {
+    const stationsResponse = await fetch(`http://localhost:${port}/api/stations`);
+    const stationsPayload = await stationsResponse.json();
+    assert.equal(stationsResponse.ok, true);
+    assert.equal(stationsPayload.stations.some((station) => station.name === '강남'), true);
+
+    const routeResponse = await fetch(`http://localhost:${port}/api/route?start=강남&end=길음`);
+    const routePayload = await routeResponse.json();
+    assert.equal(routeResponse.ok, true);
+    assert.equal(routePayload.route.districts.includes('강남구'), true);
+    assert.equal(routePayload.route.districts.includes('성북구'), true);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
